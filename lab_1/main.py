@@ -31,7 +31,9 @@ def prompt_paths(settings: dict) -> dict:
     if public:
         settings["public_key"] = public
 
-    symmetric = input(f"Путь к симметричному ключу [{settings['symmetric_key']}]: ")
+    symmetric = input(
+        f"Путь к симметричному ключу [{settings['symmetric_key']}]: "
+    )
     if symmetric:
         settings["symmetric_key"] = symmetric
 
@@ -136,7 +138,9 @@ def main() -> None:
     parser.add_argument("--private-key", dest="private_key")
     parser.add_argument("--public-key", dest="public_key")
     parser.add_argument("--symmetric-key", dest="symmetric_key")
-    parser.add_argument("--key-size", dest="key_size", type=int, choices=(64, 128, 192))
+    parser.add_argument(
+        "--key-size", dest="key_size", type=int, choices=(64, 128, 192)
+    )
 
     args = parser.parse_args()
 

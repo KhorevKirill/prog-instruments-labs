@@ -19,7 +19,9 @@ def make_3des_key(key_size: int) -> bytes:
     return os.urandom(key_size // 8)
 
 
-def encrypt_file_3des(input_file_path: str, output_file_path: str, key: bytes) -> None:
+def encrypt_file_3des(
+    input_file_path: str, output_file_path: str, key: bytes
+) -> None:
     """
     Шифрует файл алгоритмом 3DES-CBC.
 
@@ -42,7 +44,9 @@ def encrypt_file_3des(input_file_path: str, output_file_path: str, key: bytes) -
     dump_blob(output_file_path, iv + ciphertext)
 
 
-def decrypt_file_3des(input_file_path: str, output_file_path: str, key: bytes) -> None:
+def decrypt_file_3des(
+    input_file_path: str, output_file_path: str, key: bytes
+) -> None:
     """
     Дешифрует файл алгоритмом 3DES-CBC.
 

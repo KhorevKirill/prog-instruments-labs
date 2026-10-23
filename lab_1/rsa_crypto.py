@@ -1,5 +1,7 @@
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding as asymmetric_padding
+from cryptography.hazmat.primitives.asymmetric import (
+    padding as asymmetric_padding,
+)
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
@@ -12,13 +14,17 @@ def make_rsa_keys() -> tuple[rsa.RSAPrivateKey, rsa.RSAPublicKey]:
 
     :return: закрытый и открытый RSA-ключи
     """
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    private_key = rsa.generate_private_key(
+        public_exponent=65537, key_size=2048
+    )
     public_key = private_key.public_key()
 
     return private_key, public_key
 
 
-def dump_private_key(private_key: rsa.RSAPrivateKey, private_key_path: str) -> None:
+def dump_private_key(
+    private_key: rsa.RSAPrivateKey, private_key_path: str
+) -> None:
     """
     Сохраняет закрытый RSA-ключ.
 
@@ -34,7 +40,9 @@ def dump_private_key(private_key: rsa.RSAPrivateKey, private_key_path: str) -> N
     dump_blob(private_key_path, key_data)
 
 
-def dump_public_key(public_key: rsa.RSAPublicKey, public_key_path: str) -> None:
+def dump_public_key(
+    public_key: rsa.RSAPublicKey, public_key_path: str
+) -> None:
     """
     Сохраняет открытый RSA-ключ.
 
