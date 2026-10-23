@@ -1,12 +1,13 @@
 """Чтение и запись JSON-настроек и бинарных файлов."""
 
 import json
+from collections.abc import Mapping
 from pathlib import Path
 
 from errors import FileWriteError, JsonFormatError, MissingFileError
 
 
-def load_json(file_path: str) -> dict:
+def load_json(file_path: str) -> object:
     """
     Читает JSON-файл.
 
@@ -22,7 +23,7 @@ def load_json(file_path: str) -> dict:
         raise JsonFormatError(file_path) from error
 
 
-def dump_json(file_path: str, data: dict) -> None:
+def dump_json(file_path: str, data: Mapping[str, object]) -> None:
     """
     Записывает словарь в JSON-файл.
 

@@ -11,6 +11,7 @@ from rsa_crypto import (
     unwrap_key,
     wrap_key,
 )
+from settings import Settings, parse_settings
 from tdes_crypto import (
     decrypt_file_3des,
     encrypt_file_3des,
@@ -18,7 +19,7 @@ from tdes_crypto import (
 )
 
 
-def prompt_paths(settings: dict) -> dict:
+def prompt_paths(settings: Settings) -> Settings:
     """
     Запрашивает у пользователя пути к ключам и обновляет настройки.
 
@@ -42,7 +43,7 @@ def prompt_paths(settings: dict) -> dict:
     return settings
 
 
-def generation_mode(settings: dict, settings_path: str) -> None:
+def generation_mode(settings: Settings, settings_path: str) -> None:
     """
     Генерирует ключи гибридной криптосистемы.
 
@@ -74,7 +75,7 @@ def generation_mode(settings: dict, settings_path: str) -> None:
     print("Генерация завершена")
 
 
-def encryption_mode(settings: dict) -> None:
+def encryption_mode(settings: Settings) -> None:
     """
     Шифрует файл гибридной криптосистемой.
 
@@ -100,7 +101,7 @@ def encryption_mode(settings: dict) -> None:
     print("Шифрование завершено")
 
 
-def decryption_mode(settings: dict) -> None:
+def decryption_mode(settings: Settings) -> None:
     """
     Дешифрует файл гибридной криптосистемой.
 
@@ -150,18 +151,22 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def apply_overrides(settings: dict, args: argparse.Namespace) -> dict:
+def apply_overrides(settings: Settings, args: argparse.Namespace) -> Settings:
     """
     Подменяет значения настроек аргументами командной строки.
 
-    :param settings: словарь настроек из JSON-файла
+    :param settings: настройки из JSON-файла
     :param args: разобранные аргументы командной строки
     :return: обновлённый словарь настроек
     """
-    for name in ("private_key", "public_key", "symmetric_key", "key_size"):
-        value = getattr(args, name)
-        if value is not None:
-            settings[name] = value
+    if args.private_key is not None:
+        settings["private_key"] = args.private_key
+    if args.public_key is not None:
+        settings["public_key"] = args.public_key
+    if args.symmetric_key is not None:
+        settings["symmetric_key"] = args.symmetric_key
+    if args.key_size is not None:
+        settings["key_size"] = args.key_size
     return settings
 
 
@@ -171,7 +176,8 @@ def main() -> None:
     settings_path = args.generation or args.encryption or args.decryption
 
     try:
-        settings = apply_overrides(load_json(settings_path), args)
+        settings = parse_settings(load_json(settings_path), settings_path)
+        settings = apply_overrides(settings, args)
 
         if args.generation is not None:
             print("Режим генерации ключей")

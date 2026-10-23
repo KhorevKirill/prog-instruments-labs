@@ -68,10 +68,12 @@ def read_private_key(private_key_path: str) -> rsa.RSAPrivateKey:
     :return: закрытый RSA-ключ
     """
     try:
-        key_data = load_blob(private_key_path)
-        return load_pem_private_key(key_data, password=None)
+        key = load_pem_private_key(load_blob(private_key_path), password=None)
     except ValueError as error:
         raise PrivateKeyError from error
+    if not isinstance(key, rsa.RSAPrivateKey):
+        raise PrivateKeyError
+    return key
 
 
 def wrap_key(key: bytes, public_key: rsa.RSAPublicKey) -> bytes:

@@ -58,3 +58,16 @@ class PrivateKeyError(ValueError):
     def __init__(self) -> None:
         """Формирует сообщение об ошибке чтения ключа."""
         super().__init__("Не удалось прочитать закрытый RSA-ключ.")
+
+
+class SettingsError(ValueError):
+    """Файл настроек не содержит нужных полей."""
+
+    def __init__(self, file_path: str, reason: str) -> None:
+        """
+        Формирует сообщение о некорректных настройках.
+
+        :param file_path: путь к файлу настроек
+        :param reason: что именно не так
+        """
+        super().__init__(f"Некорректный файл настроек {file_path}: {reason}")
