@@ -66,7 +66,9 @@ precommit: ## установить git-хуки pre-commit и pre-push
 	$(PY) -m pre_commit install --config .pre-commit-config.yaml \
 		--hook-type pre-commit --hook-type pre-push
 
-precommit-run: ## прогнать все хуки по всем файлам lab_1
+precommit-run: ## прогнать хуки обеих стадий по всем файлам lab_1
+	$(PY) -m pre_commit run --config .pre-commit-config.yaml \
+		--all-files --hook-stage pre-commit
 	$(PY) -m pre_commit run --config .pre-commit-config.yaml \
 		--all-files --hook-stage pre-push
 
