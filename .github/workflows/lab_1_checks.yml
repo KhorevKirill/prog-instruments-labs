@@ -1,0 +1,71 @@
+name: Проверка ЛР1
+
+on:
+  push:
+    paths:
+      - "lab_1/**"
+      - ".github/workflows/lab_1_checks.yml"
+  pull_request:
+    paths:
+      - "lab_1/**"
+      - ".github/workflows/lab_1_checks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Линтер, форматирование, типы, тесты
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lab_1
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: lab_1/requirements-dev.txt
+
+      - name: Установка зависимостей
+        run: make install PYTHON=python
+
+      - name: Линтер (ruff check)
+        run: make lint
+
+      - name: Форматирование (ruff format --check)
+        run: make format-check
+
+      - name: Проверка типов (pyright)
+        run: make typecheck
+
+      - name: Сквозной прогон (ключи, шифрование, расшифровка)
+        run: make test
+
+  pre-commit:
+    name: Хуки pre-commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Установка зависимостей
+        working-directory: lab_1
+        run: make install PYTHON=python
+
+      - name: Запуск хуков по всем файлам lab_1
+        working-directory: lab_1
+        run: |
+          .venv/bin/python -m pre_commit run --config .pre-commit-config.yaml \
+            --all-files --hook-stage pre-commit --show-diff-on-failure
