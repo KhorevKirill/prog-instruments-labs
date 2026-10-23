@@ -2,8 +2,9 @@
 
 import os
 
+from cryptography.hazmat.decrepit.ciphers.algorithms import TripleDES
 from cryptography.hazmat.primitives import padding as symmetric_padding
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import Cipher, modes
 
 from errors import KeySizeError
 from io_utils import dump_blob, load_blob
@@ -39,7 +40,7 @@ def encrypt_file_3des(
     padded_plaintext = padder.update(plaintext) + padder.finalize()
 
     iv = os.urandom(8)
-    cipher = Cipher(algorithms.TripleDES(key), modes.CBC(iv))
+    cipher = Cipher(TripleDES(key), modes.CBC(iv))
 
     encryptor = cipher.encryptor()
     ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
@@ -63,7 +64,7 @@ def decrypt_file_3des(
     iv = encrypted_data[:8]
     ciphertext = encrypted_data[8:]
 
-    cipher = Cipher(algorithms.TripleDES(key), modes.CBC(iv))
+    cipher = Cipher(TripleDES(key), modes.CBC(iv))
     decryptor = cipher.decryptor()
     padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
 
