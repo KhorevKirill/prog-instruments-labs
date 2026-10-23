@@ -1,14 +1,16 @@
+"""Точка входа: генерация ключей, шифрование и дешифрование файла."""
+
 import argparse
 
+from io_utils import dump_blob, dump_json, load_blob, load_json
 from rsa_crypto import (
-    unwrap_key,
-    wrap_key,
-    make_rsa_keys,
-    read_private_key,
     dump_private_key,
     dump_public_key,
+    make_rsa_keys,
+    read_private_key,
+    unwrap_key,
+    wrap_key,
 )
-from io_utils import load_blob, load_json, dump_blob, dump_json
 from tdes_crypto import (
     decrypt_file_3des,
     encrypt_file_3des,
@@ -124,11 +126,15 @@ def decryption_mode(settings: dict) -> None:
     print("Дешифрование завершено")
 
 
-def main() -> None:
+def build_parser() -> argparse.ArgumentParser:
     """
-    Запускает выбранный режим программы.
+    Создаёт парсер аргументов командной строки.
+
+    :return: настроенный парсер
     """
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Гибридная криптосистема RSA + 3DES",
+    )
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--gen", "--generation", dest="generation")
@@ -141,39 +147,44 @@ def main() -> None:
     parser.add_argument(
         "--key-size", dest="key_size", type=int, choices=(64, 128, 192)
     )
+    return parser
 
-    args = parser.parse_args()
+
+def apply_overrides(settings: dict, args: argparse.Namespace) -> dict:
+    """
+    Подменяет значения настроек аргументами командной строки.
+
+    :param settings: словарь настроек из JSON-файла
+    :param args: разобранные аргументы командной строки
+    :return: обновлённый словарь настроек
+    """
+    for name in ("private_key", "public_key", "symmetric_key", "key_size"):
+        value = getattr(args, name)
+        if value is not None:
+            settings[name] = value
+    return settings
+
+
+def main() -> None:
+    """Запускает выбранный режим программы."""
+    args = build_parser().parse_args()
+    settings_path = args.generation or args.encryption or args.decryption
 
     try:
-        mode = (
-            args.generation is not None,
-            args.encryption is not None,
-            args.decryption is not None,
-        )
-        settings_path = args.generation or args.encryption or args.decryption
-        settings = load_json(settings_path)
+        settings = apply_overrides(load_json(settings_path), args)
 
-        if args.private_key is not None:
-            settings["private_key"] = args.private_key
-        if args.public_key is not None:
-            settings["public_key"] = args.public_key
-        if args.symmetric_key is not None:
-            settings["symmetric_key"] = args.symmetric_key
-        if args.key_size is not None:
-            settings["key_size"] = args.key_size
-
-        match mode:
-            case (True, False, False):
-                print("Режим генерации ключей")
-                generation_mode(settings, settings_path)
-            case (False, True, False):
-                print("Режим шифрования")
-                encryption_mode(settings)
-            case (False, False, True):
-                print("Режим дешифрования")
-                decryption_mode(settings)
-    except (FileNotFoundError, OSError, ValueError) as error:
+        if args.generation is not None:
+            print("Режим генерации ключей")
+            generation_mode(settings, settings_path)
+        elif args.encryption is not None:
+            print("Режим шифрования")
+            encryption_mode(settings)
+        else:
+            print("Режим дешифрования")
+            decryption_mode(settings)
+    except (OSError, ValueError) as error:
         print(f"Ошибка: {error}")
+        raise SystemExit(1) from error
 
 
 if __name__ == "__main__":

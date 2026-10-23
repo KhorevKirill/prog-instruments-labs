@@ -1,3 +1,5 @@
+"""Генерация, сохранение и использование ключей RSA."""
+
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import (
     padding as asymmetric_padding,
@@ -5,7 +7,8 @@ from cryptography.hazmat.primitives.asymmetric import (
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 
-from io_utils import load_blob, dump_blob
+from errors import PrivateKeyError
+from io_utils import dump_blob, load_blob
 
 
 def make_rsa_keys() -> tuple[rsa.RSAPrivateKey, rsa.RSAPublicKey]:
@@ -68,7 +71,7 @@ def read_private_key(private_key_path: str) -> rsa.RSAPrivateKey:
         key_data = load_blob(private_key_path)
         return load_pem_private_key(key_data, password=None)
     except ValueError as error:
-        raise ValueError("Не удалось прочитать закрытый RSA-ключ.") from error
+        raise PrivateKeyError from error
 
 
 def wrap_key(key: bytes, public_key: rsa.RSAPublicKey) -> bytes:

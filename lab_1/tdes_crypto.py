@@ -1,9 +1,12 @@
+"""Генерация ключа 3DES и шифрование файлов в режиме CBC."""
+
 import os
 
 from cryptography.hazmat.primitives import padding as symmetric_padding
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-from io_utils import load_blob, dump_blob
+from errors import KeySizeError
+from io_utils import dump_blob, load_blob
 
 
 def make_3des_key(key_size: int) -> bytes:
@@ -14,7 +17,7 @@ def make_3des_key(key_size: int) -> bytes:
     :return: ключ 3DES
     """
     if key_size not in (64, 128, 192):
-        raise ValueError("Длина ключа 3DES должна быть 64, 128 или 192 бит.")
+        raise KeySizeError(key_size)
 
     return os.urandom(key_size // 8)
 
